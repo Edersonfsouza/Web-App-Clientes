@@ -36,7 +36,7 @@ def salvar_dados(clientes, cheque, valor, agencia, cod, emissao, vencimento, tit
         st.success("Dados enviados com sucesso!")
 
 # Tela de Cadastro
-st.title("Cadastro de Cheques")
+st.title("Cadastro de Clientes")
 
 with st.form("signup_form"):
     clientes = st.text_input("Cliente")
