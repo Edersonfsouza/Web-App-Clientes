@@ -64,8 +64,8 @@ def show_cheque_form():
         valor = st.text_input("Valor", key='valor')
         agencia = st.text_input("Agência", key='agencia')
         cod = st.text_input("Código", key='cod')
-        emissao = st.date_input("Data de Emissão")
-        vencimento = st.date_input("Data de Vencimento")
+        emissao = st.date_input("Data de Emissão", key='emissao')
+        vencimento = st.date_input("Data de Vencimento", key='vencimento')
         titular = st.text_input("Titular", key='titular')
 
         registrar = st.form_submit_button('Registrar', type="primary")
@@ -129,7 +129,7 @@ def show_cliente_form():
         cpf = st.text_input("Digite seu CPF", placeholder="000.000.000-00", key='cpf')
         cep = st.text_input("Digite seu CEP", placeholder="00000-000", key='cep')
         email = st.text_input("Digite seu Email", key='email')
-        data_cadastro = st.date_input("Data do cadastro")
+        data_cadastro = st.date_input("Data do cadastro", key='data_cadastro')
 
         finalizar = st.form_submit_button('Registrar', type="primary")
 
