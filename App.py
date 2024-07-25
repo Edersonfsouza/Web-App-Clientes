@@ -160,6 +160,7 @@ def show_cliente_form():
                         }
                         insert_into_clientes(data)
                         clear_form()
+                        st.success('Dados salvos com sucesso !')
                     elif cancel:
                         st.info("Ação cancelada.")
             else:
