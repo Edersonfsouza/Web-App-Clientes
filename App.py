@@ -10,9 +10,9 @@ supabase: Client = create_client(url, key)
 # Função para buscar clientes do banco de dados
 def fetch_clients():
     try:
-        response = supabase.table('registro_cheques').select('clientes').execute()
+        response = supabase.table('registro_clientes').select('cliente').execute()
         if response.data:
-            return [client['clientes'] for client in response.data]
+            return [client['cliente'] for client in response.data]
         else:
             st.error("Erro ao buscar clientes do banco de dados")
             return []
@@ -20,45 +20,57 @@ def fetch_clients():
         st.error(f"Erro ao buscar clientes: {e}")
         return []
 
-# Função para inicializar chaves no session_state
-def initialize_session_state(keys):
-    for key in keys:
-        if key not in st.session_state:
-            st.session_state[key] = ''
+# Função para salvar dados na tabela de cheques
+def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular):
+    emissao_str = emissao.strftime('%Y-%m-%d') if emissao else None
+    vencimento_str = vencimento.strftime('%Y-%m-%d') if vencimento else None
+    
+    data = {
+        "clientes": clientes,
+        "cheque": cheque,
+        "valor": valor,
+        "agencia": agencia,
+        "cod": cod,
+        "emissao": emissao_str,
+        "vencimento": vencimento_str,
+        "titular": titular
+    }
 
-initialize_session_state([
-    'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
-    'endereco', 'telefone', 'telefone2', 'telefone3', 'cpf', 'cep', 'email'
-])
+    response = supabase.table('registro_cheques').insert(data).execute()
+    
+    if response.status_code == 201:
+        st.success("Dados enviados com sucesso!")
+    else:
+        st.error(f"Erro ao salvar dados: {response.status_code} - {response.data}")
 
-# Função para limpar os campos do formulário
-def clear_form():
-    for key in [
-        'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
-        'endereco', 'telefone', 'telefone2', 'telefone3', 'cpf', 'cep', 'email'
-    ]:
-        st.session_state[key] = ''
+# Função para salvar dados na tabela de clientes
+def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
+    data_cadastro_str = data_cadastro.strftime('%Y-%m-%d') if data_cadastro else None
+    
+    data = {
+        "cliente": cliente,
+        "cod": cod,
+        "endereco": endereco,
+        "telefone_comercial": telefone_comercial,
+        "telefone_residencial": telefone_residencial,
+        "telefone_celular": telefone_celular,
+        "cpf": cpf,
+        "cep": cep,
+        "email": email,
+        "data_cadastro": data_cadastro_str
+    }
 
-def insert_into_cheques(data):
-    try:
-        # Converte datas para strings no formato ISO
-        if 'emissao' in data and isinstance(data['emissao'], datetime.date):
-            data['emissao'] = data['emissao'].isoformat()
-        if 'vencimento' in data and isinstance(data['vencimento'], datetime.date):
-            data['vencimento'] = data['vencimento'].isoformat()
-
-        response = supabase.table('registro_cheques').insert(data).execute()
-        if response.status_code == 201:
-            st.success("Cheque registrado com sucesso!")
-        else:
-            st.error(f"Erro ao registrar cheque: {response.status_code} - {response.data}")
-    except Exception as e:
-        st.error(f"Erro ao registrar cheque: {e}")
+    response = supabase.table('registro_clientes').insert(data).execute()
+    
+    if response.status_code == 201:
+        st.success("Cliente registrado com sucesso!")
+    else:
+        st.error(f"Erro ao salvar cliente: {response.status_code} - {response.data}")
 
 # Função para exibir a página de cadastro de cheques
-def show_cheque_form():
+def show_check_form():
     st.title('Cadastro de Cheques')
-    with st.form(key='cheque_form', clear_on_submit=True):
+    with st.form(key='check_form', clear_on_submit=True):
         clientes = st.text_input("Nome do Cliente", key='clientes')
         cheque = st.text_input("Cheque", key='cheque')
         valor = st.text_input("Valor", key='valor')
@@ -68,9 +80,8 @@ def show_cheque_form():
         vencimento = st.date_input("Data de Vencimento", key='vencimento')
         titular = st.text_input("Titular", key='titular')
 
-        registrar = st.form_submit_button('Registrar', type="primary")
+        registrar = st.form_submit_button('Registrar')
 
-    # Lógica de confirmação
     if registrar:
         if clientes and cheque and valor and agencia and cod and emissao and vencimento and titular:
             with st.form(key='confirmation_form'):
@@ -82,61 +93,34 @@ def show_cheque_form():
                     cancel = st.form_submit_button("Cancelar")
 
                 if confirm:
-                    data = {
-                        'clientes': clientes,
-                        'cheque': cheque,
-                        'valor': valor,
-                        'agencia': agencia,
-                        'cod': cod,
-                        'emissao': emissao,
-                        'vencimento': vencimento,
-                        'titular': titular
-                    }
-                    insert_into_cheques(data)
+                    save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular)
                     clear_form()
-                    st.success('Dados salvos com sucesso !')
                 elif cancel:
                     st.info("Ação cancelada.")
         else:
             st.error("Por favor, preencha todos os campos.")
 
-def insert_into_clientes(data):
-    try:
-        # Converte datas para strings no formato ISO
-        if 'data_cadastro' in data and isinstance(data['data_cadastro'], datetime.date):
-            data['data_cadastro'] = data['data_cadastro'].isoformat()
-
-        response = supabase.table('registro_clientes').insert(data).execute()
-        if response.status_code == 201:
-            st.success("Cliente registrado com sucesso!")
-        else:
-            st.error(f"Erro ao registrar cliente: {response.status_code}")
-    except Exception as e:
-        st.error(f"Erro ao registrar cliente: {e}")
-
 # Função para exibir a página de cadastro de clientes
-def show_cliente_form():
+def show_client_form():
     st.title('Cadastro de Clientes')
-    # Buscar clientes do banco de dados
     clientes = fetch_clients()
     
-    with st.form(key='cliente_form', clear_on_submit=True):
-        selected_cliente = st.selectbox('Selecionar cliente', options=clientes)
+    with st.form(key='client_form', clear_on_submit=True):
+        cliente = st.selectbox('Selecionar Cliente', options=clientes)
         cod = st.text_input("Código", key='cod')
         endereco = st.text_input("Endereço", key='endereco')
-        telefone_comercial = st.text_input("Telefone comercial", placeholder="(xx) xxxxx-xxxx", key='telefone')
-        telefone_residencial = st.text_input("Telefone residencial", placeholder="(xx) xxxxx-xxxx", key='telefone2')
-        telefone_celular = st.text_input("Telefone celular", placeholder="(xx) xxxxx-xxxx", key='telefone3')
-        cpf = st.text_input("Digite seu CPF", placeholder="000.000.000-00", key='cpf')
-        cep = st.text_input("Digite seu CEP", placeholder="00000-000", key='cep')
-        email = st.text_input("Digite seu Email", key='email')
-        data_cadastro = st.date_input("Data do cadastro", key='data_cadastro')
+        telefone_comercial = st.text_input("Telefone Comercial", placeholder="(xx) xxxxx-xxxx", key='telefone')
+        telefone_residencial = st.text_input("Telefone Residencial", placeholder="(xx) xxxxx-xxxx", key='telefone2')
+        telefone_celular = st.text_input("Telefone Celular", placeholder="(xx) xxxxx-xxxx", key='telefone3')
+        cpf = st.text_input("CPF", placeholder="000.000.000-00", key='cpf')
+        cep = st.text_input("CEP", placeholder="00000-000", key='cep')
+        email = st.text_input("Email", key='email')
+        data_cadastro = st.date_input("Data do Cadastro", key='data_cadastro')
 
-        finalizar = st.form_submit_button('Registrar', type="primary")
+        finalizar = st.form_submit_button('Registrar')
 
-        # Lógica de confirmação
         if finalizar:
-            if selected_cliente and cod and telefone_comercial and telefone_residencial and telefone_celular and endereco and cpf and cep and email and data_cadastro:
+            if cliente and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
                 with st.form(key='confirmation_form'):
                     st.write("Você tem certeza de que deseja realizar esta ação?")
                     col1, col2 = st.columns(2)
@@ -146,39 +130,34 @@ def show_cliente_form():
                         cancel = st.form_submit_button("Cancelar")
 
                     if confirm:
-                        data = {
-                            'cliente': selected_cliente,
-                            'cod': cod,
-                            'endereco': endereco,
-                            'telefone_comercial': telefone_comercial,
-                            'telefone_residencial': telefone_residencial,
-                            'telefone_celular': telefone_celular,
-                            'cpf': cpf,
-                            'cep': cep,
-                            'email': email,
-                            'data_cadastro': data_cadastro
-                        }
-                        insert_into_clientes(data)
+                        save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro)
                         clear_form()
-                        st.success('Dados salvos com sucesso !')
                     elif cancel:
                         st.info("Ação cancelada.")
             else:
                 st.error("Por favor, preencha todos os campos.")
 
+# Função para limpar os campos do formulário
+def clear_form():
+    for key in [
+        'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
+        'endereco', 'telefone', 'telefone2', 'telefone3', 'cpf', 'cep', 'email'
+    ]:
+        st.session_state[key] = ''
+
 # Função para exibir a página inicial
 def show_home_page():
-    st.title('Teste')
+    st.title('Página Inicial')
 
 # Função para exibir a sidebar
 def show_sidebar():
     st.sidebar.title('Registros')
-    if st.sidebar.button('Página inicial'):
+    if st.sidebar.button('Página Inicial'):
         st.session_state.current_page = 'home'
     if st.sidebar.button('Cheques'):
-        st.session_state.current_page = 'cheque_form'
+        st.session_state.current_page = 'check_form'
     if st.sidebar.button('Clientes'):
-        st.session_state.current_page = 'cliente_form'
+        st.session_state.current_page = 'client_form'
 
 # Verifica se o estado 'current_page' existe no session_state, caso contrário, define como 'home'
 if 'current_page' not in st.session_state:
@@ -188,9 +167,9 @@ if 'current_page' not in st.session_state:
 show_sidebar()
 
 # Navegação entre páginas
-if st.session_state.current_page == 'cliente_form': 
-    show_cliente_form()
-elif st.session_state.current_page == 'cheque_form':
-    show_cheque_form()
+if st.session_state.current_page == 'client_form':
+    show_client_form()
+elif st.session_state.current_page == 'check_form':
+    show_check_form()
 else:
     show_home_page()
