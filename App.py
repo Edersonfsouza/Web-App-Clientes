@@ -94,7 +94,7 @@ def show_cheque_form():
                     }
                     insert_into_cheques(data)
                     clear_form()
-                    st.success('Dados salvos')
+                    st.success('Dados salvos com sucesso !')
                 elif cancel:
                     st.info("Ação cancelada.")
         else:
