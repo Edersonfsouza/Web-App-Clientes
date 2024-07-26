@@ -38,10 +38,10 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
 
     response = supabase.table('registro_cheques').insert(data).execute()
     
-    if response.status_code == 201:
+    if response.data:
         st.success("Dados enviados com sucesso!")
     else:
-        st.error(f"Erro ao salvar dados: {response.status_code} - {response.data}")
+        st.error(f"Erro ao salvar dados: {response}")
 
 # Função para salvar dados na tabela de clientes
 def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
@@ -62,10 +62,10 @@ def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_reside
 
     response = supabase.table('registro_clientes').insert(data).execute()
     
-    if response.status_code == 201:
+    if response.data:
         st.success("Cliente registrado com sucesso!")
     else:
-        st.error(f"Erro ao salvar cliente: {response.status_code} - {response.data}")
+        st.error(f"Erro ao salvar cliente: {response}")
 
 # Função para exibir a página de cadastro de cheques
 def show_check_form():
