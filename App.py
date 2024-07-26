@@ -84,21 +84,36 @@ def show_check_form():
 
     if registrar:
         if clientes and cheque and valor and agencia and cod and emissao and vencimento and titular:
-            with st.form(key='confirmation_form'):
-                st.write("Você tem certeza de que deseja realizar esta ação?")
-                col1, col2 = st.columns(2)
-                with col1:
-                    confirm = st.form_submit_button("Confirmar")
-                with col2:
-                    cancel = st.form_submit_button("Cancelar")
-
-                if confirm:
-                    save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular)
-                    clear_form()
-                elif cancel:
-                    st.info("Ação cancelada.")
+            st.session_state.form_data = {
+                'clientes': clientes, 'cheque': cheque, 'valor': valor, 
+                'agencia': agencia, 'cod': cod, 'emissao': emissao, 
+                'vencimento': vencimento, 'titular': titular
+            }
+            st.session_state.show_confirmation = True
         else:
             st.error("Por favor, preencha todos os campos.")
+
+    if 'show_confirmation' in st.session_state and st.session_state.show_confirmation:
+        with st.form(key='confirmation_form'):
+            st.write("Você tem certeza de que deseja realizar esta ação?")
+            col1, col2 = st.columns(2)
+            with col1:
+                confirm = st.form_submit_button("Confirmar")
+            with col2:
+                cancel = st.form_submit_button("Cancelar")
+
+            if confirm:
+                form_data = st.session_state.form_data
+                save_check_data(
+                    form_data['clientes'], form_data['cheque'], form_data['valor'], 
+                    form_data['agencia'], form_data['cod'], form_data['emissao'], 
+                    form_data['vencimento'], form_data['titular']
+                )
+                st.session_state.show_confirmation = False
+                clear_form()
+            elif cancel:
+                st.info("Ação cancelada.")
+                st.session_state.show_confirmation = False
 
 # Função para exibir a página de cadastro de clientes
 def show_client_form():
