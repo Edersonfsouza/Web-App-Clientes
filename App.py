@@ -54,7 +54,7 @@ def check_duplicate_client(cliente, cod, cpf, email):
 def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular):
     if check_duplicate_check(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular):
         st.error("Erro: Este cheque já está registrado no sistema.")
-        return
+        return False
     
     emissao_str = emissao.strftime('%Y-%m-%d') if emissao else None
     vencimento_str = vencimento.strftime('%Y-%m-%d') if vencimento else None
@@ -73,17 +73,19 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
     try:
         response = supabase.table('registro_cheques').insert(data).execute()
         if response.data:
-            st.success("Dados enviados com sucesso!")
+            return True
         else:
             st.error(f"Erro ao salvar dados: {response}")
+            return False
     except Exception as e:
         st.error(f"Erro ao salvar dados: {e}")
+        return False
 
 # Função para salvar dados na tabela de clientes
 def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
     if check_duplicate_client(cliente, cod, cpf, email):
         st.error("Erro: Este cliente já está registrado no sistema.")
-        return
+        return False
     
     data_cadastro_str = data_cadastro.strftime('%Y-%m-%d') if data_cadastro else None
     
@@ -103,11 +105,13 @@ def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_reside
     try:
         response = supabase.table('registro_clientes').insert(data).execute()
         if response.data:
-            st.success("Cliente registrado com sucesso!")
+            return True
         else:
             st.error(f"Erro ao salvar cliente: {response}")
+            return False
     except Exception as e:
         st.error(f"Erro ao salvar cliente: {e}")
+        return False
 
 # Função para exibir a página de cadastro de cheques
 def show_check_form():
@@ -146,13 +150,14 @@ def show_check_form():
 
             if confirm:
                 form_data = st.session_state.form_data
-                save_check_data(
+                success = save_check_data(
                     form_data['clientes'], form_data['cheque'], form_data['valor'], 
                     form_data['agencia'], form_data['cod'], form_data['emissao'], 
                     form_data['vencimento'], form_data['titular']
                 )
                 st.session_state.show_confirmation = False
-                st.success('Dados salvos com sucesso', icon="✅")
+                if success:
+                    st.success('Dados salvos com sucesso', icon="✅")
                 clear_form()
             elif cancel:
                 st.info("Ação cancelada.")
@@ -200,14 +205,15 @@ def show_client_form():
 
             if confirm:
                 form_data = st.session_state.form_data
-                save_client_data(
+                success = save_client_data(
                     form_data['cliente'], form_data['cod'], form_data['endereco'], 
                     form_data['telefone_comercial'], form_data['telefone_residencial'], 
                     form_data['telefone_celular'], form_data['cpf'], form_data['cep'], 
                     form_data['email'], form_data['data_cadastro']
                 )
                 st.session_state.show_confirmation = False
-                st.success('Dados salvos com sucesso', icon="✅")
+                if success:
+                    st.success('Dados salvos com sucesso', icon="✅")
                 clear_form()
             elif cancel:
                 st.info("Ação cancelada.")
