@@ -7,6 +7,14 @@ url = "https://erzycfiodrtrwthjtpdn.supabase.co"
 key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyenljZmlvZHJ0cnd0aGp0cGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE1NzExMjUsImV4cCI6MjAzNzE0NzEyNX0.0O_m5WOjz0DsrDuzz0ChJfsZA_7v1pDP6vLQXl7YpNo"
 supabase: Client = create_client(url, key)
 
+# Inicializando o estado da aplicação
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = 'home'
+if 'form_data' not in st.session_state:
+    st.session_state.form_data = {}
+if 'show_confirmation' not in st.session_state:
+    st.session_state.show_confirmation = False
+
 # Função para buscar clientes do banco de dados
 def fetch_clients():
     try:
@@ -38,7 +46,7 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
 
     try:
         response = supabase.table('registro_cheques').insert(data).execute()
-        if response.data:  # Verificando se os dados foram retornados
+        if response.data:
             st.success("Dados enviados com sucesso!")
         else:
             st.error(f"Erro ao salvar dados: {response}")
@@ -64,7 +72,7 @@ def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_reside
 
     try:
         response = supabase.table('registro_clientes').insert(data).execute()
-        if response.data:  # Verificando se os dados foram retornados
+        if response.data:
             st.success("Cliente registrado com sucesso!")
         else:
             st.error(f"Erro ao salvar cliente: {response}")
@@ -97,7 +105,7 @@ def show_check_form():
         else:
             st.error("Por favor, preencha todos os campos.")
 
-    if 'show_confirmation' in st.session_state and st.session_state.show_confirmation:
+    if st.session_state.show_confirmation:
         with st.form(key='confirmation_form'):
             st.write("Você tem certeza de que deseja realizar esta ação?")
             col1, col2 = st.columns(2)
@@ -140,7 +148,7 @@ def show_client_form():
         finalizar = st.form_submit_button('Registrar')
 
         if finalizar:
-            if cliente and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular e cpf e cep e email e data_cadastro:
+            if cliente and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
                 st.session_state.form_data = {
                     'cliente': cliente, 'cod': cod, 'endereco': endereco, 
                     'telefone_comercial': telefone_comercial, 'telefone_residencial': telefone_residencial, 
@@ -151,7 +159,7 @@ def show_client_form():
             else:
                 st.error("Por favor, preencha todos os campos.")
 
-    if 'show_confirmation' in st.session_state and st.session_state.show_confirmation:
+    if st.session_state.show_confirmation:
         with st.form(key='confirmation_form'):
             st.write("Você tem certeza de que deseja realizar esta ação?")
             col1, col2 = st.columns(2)
@@ -177,10 +185,11 @@ def show_client_form():
 
 # Função para limpar os campos do formulário
 def clear_form():
-    for key in [
+    keys_to_clear = [
         'cliente', 'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
         'endereco', 'telefone', 'telefone2', 'telefone3', 'cpf', 'cep', 'email'
-    ]:
+    ]
+    for key in keys_to_clear:
         if key in st.session_state:
             del st.session_state[key]
 
@@ -197,10 +206,6 @@ def show_sidebar():
         st.session_state.current_page = 'check_form'
     if st.sidebar.button('Clientes'):
         st.session_state.current_page = 'client_form'
-
-# Verifica se o estado 'current_page' existe no session_state, caso contrário, define como 'home'
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = 'home'
 
 # Exibe a sidebar e o conteúdo principal
 show_sidebar()
