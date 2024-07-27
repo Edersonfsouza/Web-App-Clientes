@@ -39,7 +39,7 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
     try:
         response = supabase.table('registro_cheques').insert(data).execute()
         if response.data:  # Verificando se os dados foram retornados
-            st.success("Dados enviados com sucesso!")
+            st.success("Registro Concluido")
         else:
             st.error(f"Erro ao salvar dados: {response}")
     except Exception as e:
