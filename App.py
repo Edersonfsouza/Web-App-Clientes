@@ -28,8 +28,34 @@ def fetch_clients():
         st.error(f"Erro ao buscar clientes: {e}")
         return []
 
+# Função para verificar duplicação na tabela de cheques
+def check_duplicate_check(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular):
+    try:
+        response = supabase.table('registro_cheques').select('*').eq('clientes', clientes).eq('cheque', cheque).eq('valor', valor).eq('agencia', agencia).eq('cod', cod).eq('emissao', emissao).eq('vencimento', vencimento).eq('titular', titular).execute()
+        if response.data:
+            return True  # Duplicata encontrada
+        return False
+    except Exception as e:
+        st.error(f"Erro ao verificar duplicação: {e}")
+        return True
+
+# Função para verificar duplicação na tabela de clientes
+def check_duplicate_client(cliente, cod, cpf, email):
+    try:
+        response = supabase.table('registro_clientes').select('*').eq('cliente', cliente).eq('cod', cod).eq('cpf', cpf).eq('email', email).execute()
+        if response.data:
+            return True  # Duplicata encontrada
+        return False
+    except Exception as e:
+        st.error(f"Erro ao verificar duplicação: {e}")
+        return True
+
 # Função para salvar dados na tabela de cheques
 def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular):
+    if check_duplicate_check(clientes, cheque, valor, agencia, cod, emissao, vencimento, titular):
+        st.error("Erro: Este cheque já está registrado no sistema.")
+        return
+    
     emissao_str = emissao.strftime('%Y-%m-%d') if emissao else None
     vencimento_str = vencimento.strftime('%Y-%m-%d') if vencimento else None
     
@@ -55,6 +81,10 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
 
 # Função para salvar dados na tabela de clientes
 def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
+    if check_duplicate_client(cliente, cod, cpf, email):
+        st.error("Erro: Este cliente já está registrado no sistema.")
+        return
+    
     data_cadastro_str = data_cadastro.strftime('%Y-%m-%d') if data_cadastro else None
     
     data = {
