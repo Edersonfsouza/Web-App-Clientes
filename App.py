@@ -144,7 +144,7 @@ def show_check_form():
             st.write("Você tem certeza de que deseja realizar esta ação?")
             col1, col2 = st.columns(2)
             with col1:
-                confirm = st.form_submit_button("Confirmar")
+                confirm = st.form_submit_button("Confirmar",  type="primary")
             with col2:
                 cancel = st.form_submit_button("Cancelar")
 
@@ -180,7 +180,7 @@ def show_client_form():
         email = st.text_input("Email", key='email')
         data_cadastro = st.date_input("Data do Cadastro", key='data_cadastro')
 
-        finalizar = st.form_submit_button('Registrar')
+        finalizar = st.form_submit_button('Registrar',  type="primary")
 
         if finalizar:
             if cliente and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
@@ -199,7 +199,7 @@ def show_client_form():
             st.write("Você tem certeza de que deseja realizar esta ação?")
             col1, col2 = st.columns(2)
             with col1:
-                confirm = st.form_submit_button("Confirmar")
+                confirm = st.form_submit_button("Confirmar",  type="primary")
             with col2:
                 cancel = st.form_submit_button("Cancelar")
 
