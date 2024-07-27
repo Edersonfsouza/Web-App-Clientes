@@ -36,12 +36,14 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
         "titular": titular
     }
 
-    response = supabase.table('registro_cheques').insert(data).execute()
-    
-    if response.data:
-        st.success("Dados enviados com sucesso!")
-    else:
-        st.error(f"Erro ao salvar dados: {response}")
+    try:
+        response = supabase.table('registro_cheques').insert(data).execute()
+        if response.data:  # Verificando se os dados foram retornados
+            st.success("Dados enviados com sucesso!")
+        else:
+            st.error(f"Erro ao salvar dados: {response}")
+    except Exception as e:
+        st.error(f"Erro ao salvar dados: {e}")
 
 # Função para salvar dados na tabela de clientes
 def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
@@ -60,12 +62,14 @@ def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_reside
         "data_cadastro": data_cadastro_str
     }
 
-    response = supabase.table('registro_clientes').insert(data).execute()
-    
-    if response.data:
-        st.success("Cliente registrado com sucesso!")
-    else:
-        st.error(f"Erro ao salvar cliente: {response}")
+    try:
+        response = supabase.table('registro_clientes').insert(data).execute()
+        if response.data:  # Verificando se os dados foram retornados
+            st.success("Cliente registrado com sucesso!")
+        else:
+            st.error(f"Erro ao salvar cliente: {response}")
+    except Exception as e:
+        st.error(f"Erro ao salvar cliente: {e}")
 
 # Função para exibir a página de cadastro de cheques
 def show_check_form():
@@ -110,6 +114,7 @@ def show_check_form():
                     form_data['vencimento'], form_data['titular']
                 )
                 st.session_state.show_confirmation = False
+                st.success('Dados salvos com sucesso', icon="✅")
                 clear_form()
             elif cancel:
                 st.info("Ação cancelada.")
@@ -121,7 +126,7 @@ def show_client_form():
     clientes = fetch_clients()
     
     with st.form(key='client_form', clear_on_submit=True):
-        cliente = st.selectbox('Selecionar Cliente', options=clientes)
+        cliente = st.text_input('Nome do Cliente', key='cliente')
         cod = st.text_input("Código", key='cod')
         endereco = st.text_input("Endereço", key='endereco')
         telefone_comercial = st.text_input("Telefone Comercial", placeholder="(xx) xxxxx-xxxx", key='telefone')
@@ -136,26 +141,44 @@ def show_client_form():
 
         if finalizar:
             if cliente and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
-                with st.form(key='confirmation_form'):
-                    st.write("Você tem certeza de que deseja realizar esta ação?")
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        confirm = st.form_submit_button("Confirmar")
-                    with col2:
-                        cancel = st.form_submit_button("Cancelar")
-
-                    if confirm:
-                        save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro)
-                        clear_form()
-                    elif cancel:
-                        st.info("Ação cancelada.")
+                st.session_state.form_data = {
+                    'cliente': cliente, 'cod': cod, 'endereco': endereco, 
+                    'telefone_comercial': telefone_comercial, 'telefone_residencial': telefone_residencial, 
+                    'telefone_celular': telefone_celular, 'cpf': cpf, 'cep': cep, 
+                    'email': email, 'data_cadastro': data_cadastro
+                }
+                st.session_state.show_confirmation = True
             else:
                 st.error("Por favor, preencha todos os campos.")
+
+    if 'show_confirmation' in st.session_state and st.session_state.show_confirmation:
+        with st.form(key='confirmation_form'):
+            st.write("Você tem certeza de que deseja realizar esta ação?")
+            col1, col2 = st.columns(2)
+            with col1:
+                confirm = st.form_submit_button("Confirmar")
+            with col2:
+                cancel = st.form_submit_button("Cancelar")
+
+            if confirm:
+                form_data = st.session_state.form_data
+                save_client_data(
+                    form_data['cliente'], form_data['cod'], form_data['endereco'], 
+                    form_data['telefone_comercial'], form_data['telefone_residencial'], 
+                    form_data['telefone_celular'], form_data['cpf'], form_data['cep'], 
+                    form_data['email'], form_data['data_cadastro']
+                )
+                st.session_state.show_confirmation = False
+                st.success('Dados salvos com sucesso', icon="✅")
+                clear_form()
+            elif cancel:
+                st.info("Ação cancelada.")
+                st.session_state.show_confirmation = False
 
 # Função para limpar os campos do formulário
 def clear_form():
     for key in [
-        'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
+        'cliente', 'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
         'endereco', 'telefone', 'telefone2', 'telefone3', 'cpf', 'cep', 'email'
     ]:
         st.session_state[key] = ''
