@@ -39,7 +39,7 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
     try:
         response = supabase.table('registro_cheques').insert(data).execute()
         if response.data:  # Verificando se os dados foram retornados
-            st.success("Registro Concluido")
+            st.success("Dados enviados com sucesso!")
         else:
             st.error(f"Erro ao salvar dados: {response}")
     except Exception as e:
@@ -126,7 +126,7 @@ def show_client_form():
     clientes = fetch_clients()
     
     with st.form(key='client_form', clear_on_submit=True):
-        cliente = st.text_input('Nome do Cliente', key='cliente')
+        cliente = st.selectbox('Nome do Cliente', options=clientes, key='cliente')
         cod = st.text_input("Código", key='cod')
         endereco = st.text_input("Endereço", key='endereco')
         telefone_comercial = st.text_input("Telefone Comercial", placeholder="(xx) xxxxx-xxxx", key='telefone')
@@ -140,7 +140,7 @@ def show_client_form():
         finalizar = st.form_submit_button('Registrar')
 
         if finalizar:
-            if cliente and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
+            if cliente and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular e cpf e cep e email e data_cadastro:
                 st.session_state.form_data = {
                     'cliente': cliente, 'cod': cod, 'endereco': endereco, 
                     'telefone_comercial': telefone_comercial, 'telefone_residencial': telefone_residencial, 
@@ -181,7 +181,8 @@ def clear_form():
         'cliente', 'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
         'endereco', 'telefone', 'telefone2', 'telefone3', 'cpf', 'cep', 'email'
     ]:
-        st.session_state[key] = ''
+        if key in st.session_state:
+            del st.session_state[key]
 
 # Função para exibir a página inicial
 def show_home_page():
