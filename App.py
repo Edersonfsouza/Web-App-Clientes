@@ -15,12 +15,12 @@ if 'form_data' not in st.session_state:
 if 'show_confirmation' not in st.session_state:
     st.session_state.show_confirmation = False
 
-# Função para buscar clientes do banco de dados
-def fetch_clients():
+# Função para buscar clientes do banco de dados (a partir da tabela de cheques)
+def fetch_clients_from_cheques():
     try:
-        response = supabase.table('registro_clientes').select('cliente').execute()
+        response = supabase.table('registro_cheques').select('clientes').execute()
         if response.data:
-            return [client['cliente'] for client in response.data]
+            return list(set(client['clientes'] for client in response.data))
         else:
             st.error("Erro ao buscar clientes do banco de dados")
             return []
@@ -83,7 +83,7 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
 
 # Função para salvar dados na tabela de clientes
 def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
-    if check_duplicate_client(cliente, cod, cpf, email):
+    if check_duplicate_client(cod, cpf, email):
         st.error("Erro: Este cliente já está registrado no sistema.")
         return False
     
@@ -166,10 +166,11 @@ def show_check_form():
 # Função para exibir a página de cadastro de clientes
 def show_client_form():
     st.title('Cadastro de Clientes')
-    clientes = fetch_clients()
+    clientes = fetch_clients_from_cheques()
     
     with st.form(key='client_form', clear_on_submit=True):
-        cliente = st.selectbox('Nome do Cliente', options=clientes, key='cliente')
+        cliente_selecionado = st.selectbox('Nome do Cliente', options=clientes, key='cliente_selecionado')
+        cliente = st.text_input("Nome do Cliente", value=cliente_selecionado, key='cliente')
         cod = st.text_input("Código", key='cod')
         endereco = st.text_input("Endereço", key='endereco')
         telefone_comercial = st.text_input("Telefone Comercial", placeholder="(xx) xxxxx-xxxx", key='telefone')
