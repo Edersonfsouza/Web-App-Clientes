@@ -40,9 +40,9 @@ def check_duplicate_check(clientes, cheque, valor, agencia, cod, emissao, vencim
         return True
 
 # Função para verificar duplicação na tabela de clientes
-def check_duplicate_client(cliente, cod, cpf, email):
+def check_duplicate_client(cod, cpf, email):
     try:
-        response = supabase.table('registro_clientes').select('*').eq('cliente', cliente).eq('cod', cod).eq('cpf', cpf).eq('email', email).execute()
+        response = supabase.table('registro_clientes').select('*').eq('cod', cod).eq('cpf', cpf).eq('email', email).execute()
         if response.data:
             return True  # Duplicata encontrada
         return False
