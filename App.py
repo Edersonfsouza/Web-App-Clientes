@@ -126,7 +126,7 @@ def show_check_form():
         vencimento = st.date_input("Data de Vencimento", key='vencimento')
         titular = st.text_input("Titular", key='titular')
 
-        registrar = st.form_submit_button('Registrar')
+        registrar = st.form_submit_button('Registrar', type="primary")
 
     if registrar:
         if clientes and cheque and valor and agencia and cod and emissao and vencimento and titular:
