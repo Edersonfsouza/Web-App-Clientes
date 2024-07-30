@@ -82,7 +82,7 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
         return False
 
 # Função para salvar dados na tabela de clientes
-def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
+def save_client_data(cliente_selecionado, cod, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
     if check_duplicate_client(cod, cpf, email):
         st.error("Erro: Este cliente já está registrado no sistema.")
         return False
@@ -90,7 +90,7 @@ def save_client_data(cliente, cod, endereco, telefone_comercial, telefone_reside
     data_cadastro_str = data_cadastro.strftime('%Y-%m-%d') if data_cadastro else None
     
     data = {
-        "cliente": cliente,
+        "cliente": cliente_selecionado,
         "cod": cod,
         "endereco": endereco,
         "telefone_comercial": telefone_comercial,
@@ -183,9 +183,9 @@ def show_client_form():
         finalizar = st.form_submit_button('Registrar',  type="primary")
 
         if finalizar:
-            if cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
+            if cliente_selecionado and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
                 st.session_state.form_data = {
-                    'cod': cod, 'endereco': endereco, 
+                    'cliente_selecionado': cliente_selecionado, 'cod': cod, 'endereco': endereco, 
                     'telefone_comercial': telefone_comercial, 'telefone_residencial': telefone_residencial, 
                     'telefone_celular': telefone_celular, 'cpf': cpf, 'cep': cep, 
                     'email': email, 'data_cadastro': data_cadastro
@@ -206,7 +206,7 @@ def show_client_form():
             if confirm:
                 form_data = st.session_state.form_data
                 success = save_client_data(
-                    form_data['cliente'], form_data['cod'], form_data['endereco'], 
+                    form_data['cliente_selecionado'], form_data['cod'], form_data['endereco'], 
                     form_data['telefone_comercial'], form_data['telefone_residencial'], 
                     form_data['telefone_celular'], form_data['cpf'], form_data['cep'], 
                     form_data['email'], form_data['data_cadastro']
