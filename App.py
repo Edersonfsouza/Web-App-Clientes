@@ -183,7 +183,7 @@ def show_client_form():
         finalizar = st.form_submit_button('Registrar',  type="primary")
 
         if finalizar:
-            if cliente_selecionado and cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
+            if cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
                 st.session_state.form_data = {
                     'cliente_selecionado': cliente_selecionado, 'cod': cod, 'endereco': endereco, 
                     'telefone_comercial': telefone_comercial, 'telefone_residencial': telefone_residencial, 
