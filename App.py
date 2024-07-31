@@ -44,6 +44,7 @@ def check_duplicate_check(clientes, cheque, valor, agencia, cod, emissao, vencim
 # Função para verificar duplicação na tabela de clientes
 def check_duplicate_client(cod_cliente, cpf, email):
     try:
+        cod_cliente = str(cod_cliente).strip()
         response = supabase.table('registro_clientes').select('*').eq('cod_cliente', cod_cliente).eq('cpf', cpf).eq('email', email).execute()
         if response.data:
             return True  # Duplicata encontrada
@@ -94,11 +95,11 @@ def save_client_data(cliente_selecionado, cod_cliente, endereco, telefone_comerc
         st.error("Erro: Este cliente já está registrado no sistema.")
         return False
     
-    data_cadastro_str = data_cadastro.strftime('%Y-%m-%d') if data_cadastro else None
+    data_cadastro_str = data_cadastro.strftime('%d-%m-%Y') if data_cadastro else None
     
     data = {
         "cliente": cliente_selecionado,
-        "cod_cliente": cod_cliente,
+        "cod_cliente": str(cod_cliente).strip(),
         "endereco": endereco,
         "telefone_comercial": telefone_comercial,
         "telefone_residencial": telefone_residencial,
