@@ -3,7 +3,7 @@ from supabase import create_client, Client
 import datetime
 
 # Configuração do Supabase
-url = "https://erzycfiodrtrwthjtpdn.supabase.co"
+url = " https://erzycfiodrtrwthjtpdn.supabase.co"
 key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyenljZmlvZHJ0cnd0aGp0cGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE1NzExMjUsImV4cCI6MjAzNzE0NzEyNX0.0O_m5WOjz0DsrDuzz0ChJfsZA_7v1pDP6vLQXl7YpNo"
 supabase: Client = create_client(url, key)
 
@@ -47,6 +47,7 @@ def check_duplicate_client(cod_cliente, cpf, email):
         cod_cliente = str(cod_cliente).strip()
         response = supabase.table('registro_clientes').select('*').eq('cod_cliente', cod_cliente).eq('cpf', cpf).eq('email', email).execute()
         if response.data:
+            st.write(f"Duplicata encontrada para: cod_cliente={cod_cliente}, cpf={cpf}, email={email}")
             return True  # Duplicata encontrada
         return False
     except Exception as e:
