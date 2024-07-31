@@ -42,7 +42,7 @@ def check_duplicate_check(clientes, cheque, valor, agencia, cod, emissao, vencim
 # Função para verificar duplicação na tabela de clientes
 def check_duplicate_client(cod_cliente, cpf, email):
     try:
-        response = supabase.table('registro_clientes').select('*').eq('cod', cod_cliente).eq('cpf', cpf).eq('email', email).execute()
+        response = supabase.table('registro_clientes').select('*').eq('cod_cliente', cod_cliente).eq('cpf', cpf).eq('email', email).execute()
         if response.data:
             return True  # Duplicata encontrada
         return False
@@ -91,7 +91,7 @@ def save_client_data(cliente_selecionado, cod_cliente, endereco, telefone_comerc
     
     data = {
         "cliente": cliente_selecionado,
-        "cod": cod_cliente,
+        "cod_cliente": cod_cliente,
         "endereco": endereco,
         "telefone_comercial": telefone_comercial,
         "telefone_residencial": telefone_residencial,
@@ -170,7 +170,7 @@ def show_client_form():
     
     with st.form(key='client_form', clear_on_submit=True):
         cliente_selecionado = st.selectbox('Nome do Cliente', options=clientes, key='cliente_selecionado')
-        cod = st.text_input("Código", key='cod')
+        cod_cliente = st.text_input("Código", key='cod_cliente')
         endereco = st.text_input("Endereço", key='endereco')
         telefone_comercial = st.text_input("Telefone Comercial", placeholder="(xx) xxxxx-xxxx", key='telefone')
         telefone_residencial = st.text_input("Telefone Residencial", placeholder="(xx) xxxxx-xxxx", key='telefone2')
@@ -183,9 +183,9 @@ def show_client_form():
         finalizar = st.form_submit_button('Registrar',  type="primary")
 
         if finalizar:
-            if cod and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
+            if cod_cliente and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
                 st.session_state.form_data = {
-                    'cliente_selecionado': cliente_selecionado, 'cod': cod, 'endereco': endereco, 
+                    'cliente_selecionado': cliente_selecionado, 'cod_cliente': cod_cliente, 'endereco': endereco, 
                     'telefone_comercial': telefone_comercial, 'telefone_residencial': telefone_residencial, 
                     'telefone_celular': telefone_celular, 'cpf': cpf, 'cep': cep, 
                     'email': email, 'data_cadastro': data_cadastro
@@ -206,7 +206,7 @@ def show_client_form():
             if confirm:
                 form_data = st.session_state.form_data
                 success = save_client_data(
-                    form_data['cliente_selecionado'], form_data['cod'], form_data['endereco'], 
+                    form_data['cliente_selecionado'], form_data['cod_cliente'], form_data['endereco'], 
                     form_data['telefone_comercial'], form_data['telefone_residencial'], 
                     form_data['telefone_celular'], form_data['cpf'], form_data['cep'], 
                     form_data['email'], form_data['data_cadastro']
