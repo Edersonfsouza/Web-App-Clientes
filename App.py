@@ -4,7 +4,7 @@ import datetime
 
 # Configuração do Supabase
 url = "https://erzycfiodrtrwthjtpdn.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyenljZmlvZHJ0cnd0aGp0cGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE1NzExMjUsImV4cCI6MjAzNzE0NzEyNX0.0O_m5WOjz0DsrDuzz0ChJfsZA_7v1pDP6vLQXl7YpNo"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyenljZmlvZHJ0cnd0aGp0cGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE1NzExMjUsImV4cCI6MjM3MTE0NzEyNX0.0O_m5WOjz0DsrDuzz0ChJfsZA_7v1pDP6vLQXl7YpNo"
 supabase: Client = create_client(url, key)
 
 # Inicializando o estado da aplicação
@@ -179,9 +179,9 @@ def show_client_form():
         cliente_selecionado = st.selectbox('Nome do Cliente', options=clientes, key='cliente_selecionado')
         cod_cliente = st.text_input("Código", key='cod_cliente')
         endereco = st.text_input("Endereço", key='endereco')
-        telefone_comercial = st.text_input("Telefone Comercial", placeholder="(xx) xxxxx-xxxx", key='telefone')
-        telefone_residencial = st.text_input("Telefone Residencial", placeholder="(xx) xxxxx-xxxx", key='telefone2')
-        telefone_celular = st.text_input("Telefone Celular", placeholder="(xx) xxxxx-xxxx", key='telefone3')
+        telefone_comercial = st.text_input("Telefone Comercial", placeholder="(xx) xxxxx-xxxx", key='telefone_comercial')
+        telefone_residencial = st.text_input("Telefone Residencial", placeholder="(xx) xxxxx-xxxx", key='telefone_residencial')
+        telefone_celular = st.text_input("Telefone Celular", placeholder="(xx) xxxxx-xxxx", key='telefone_celular')
         cpf = st.text_input("CPF", placeholder="000.000.000-00", key='cpf')
         cep = st.text_input("CEP", placeholder="00000-000", key='cep')
         email = st.text_input("Email", key='email')
@@ -230,7 +230,7 @@ def show_client_form():
 def clear_form():
     keys_to_clear = [
         'cliente', 'clientes', 'cheque', 'valor', 'agencia', 'cod', 'titular',
-        'endereco', 'telefone', 'telefone2', 'telefone3', 'cpf', 'cep', 'email'
+        'endereco', 'telefone_comercial', 'telefone_residencial', 'telefone_celular', 'cpf', 'cep', 'email', 'cliente_selecionado'
     ]
     for key in keys_to_clear:
         if key in st.session_state:
