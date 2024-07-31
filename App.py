@@ -14,6 +14,8 @@ if 'form_data' not in st.session_state:
     st.session_state.form_data = {}
 if 'show_confirmation' not in st.session_state:
     st.session_state.show_confirmation = False
+if 'check_completed' not in st.session_state:
+    st.session_state.check_completed = False
 
 # Função para buscar clientes do banco de dados (a partir da tabela de cheques)
 def fetch_clients_from_cheques():
@@ -73,6 +75,7 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
     try:
         response = supabase.table('registro_cheques').insert(data).execute()
         if response.data:
+            st.session_state.check_completed = True
             return True
         else:
             st.error(f"Erro ao salvar dados: {response}")
@@ -83,6 +86,10 @@ def save_check_data(clientes, cheque, valor, agencia, cod, emissao, vencimento, 
 
 # Função para salvar dados na tabela de clientes
 def save_client_data(cliente_selecionado, cod_cliente, endereco, telefone_comercial, telefone_residencial, telefone_celular, cpf, cep, email, data_cadastro):
+    if not st.session_state.check_completed:
+        st.error("Erro: Você precisa completar o cadastro de cheques antes de registrar o cliente.")
+        return False
+
     if check_duplicate_client(cod_cliente, cpf, email):
         st.error("Erro: Este cliente já está registrado no sistema.")
         return False
@@ -144,7 +151,7 @@ def show_check_form():
             st.write("Você tem certeza de que deseja realizar esta ação?")
             col1, col2 = st.columns(2)
             with col1:
-                confirm = st.form_submit_button("Confirmar",  type="primary")
+                confirm = st.form_submit_button("Confirmar", type="primary")
             with col2:
                 cancel = st.form_submit_button("Cancelar")
 
@@ -180,7 +187,7 @@ def show_client_form():
         email = st.text_input("Email", key='email')
         data_cadastro = st.date_input("Data do Cadastro", key='data_cadastro')
 
-        finalizar = st.form_submit_button('Registrar',  type="primary")
+        finalizar = st.form_submit_button('Registrar', type="primary")
 
         if finalizar:
             if cod_cliente and endereco and telefone_comercial and telefone_residencial and telefone_celular and cpf and cep and email and data_cadastro:
@@ -199,7 +206,7 @@ def show_client_form():
             st.write("Você tem certeza de que deseja realizar esta ação?")
             col1, col2 = st.columns(2)
             with col1:
-                confirm = st.form_submit_button("Confirmar",  type="primary")
+                confirm = st.form_submit_button("Confirmar", type="primary")
             with col2:
                 cancel = st.form_submit_button("Cancelar")
 
